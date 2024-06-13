@@ -12,7 +12,7 @@ int is_regular_file(const char* path) {
 }
 
 
-int read_input(const char* filename, KnapsackInput* input) {
+void read_input(const char* filename, KnapsackInput* input) {
     FILE* file = fopen(filename, "r");
     if (file == NULL) {
         fprintf(stderr, "Could not open file! \n");
@@ -20,14 +20,14 @@ int read_input(const char* filename, KnapsackInput* input) {
     }
 
     int amount, capacity;
-    fscanf(file, "%d %d\n", &amount, &capacity);
+    int _ = fscanf(file, "%d %d\n", &amount, &capacity);
 
     input->capacity = capacity;
     input->number_items = amount;
     input->profit = malloc(amount * sizeof(long));
     input->weight = malloc(amount * sizeof(long));
     for (int i = 0;i < amount;i++) {
-        fscanf(file, "%ld %ld\n", input->profit + i, input->weight + i);
+        int _ = fscanf(file, "%ld %ld\n", input->profit + i, input->weight + i);
     }
 
     fclose(file);
