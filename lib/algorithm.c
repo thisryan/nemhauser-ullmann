@@ -81,12 +81,13 @@ ParetoSet ParetoSet_calculate_plus_i(ParetoSet* set, long weight, long profit, s
 
 // The approach implemented in this funcution is the naive approach in quadtraing time
 // TODO: Implement faster approach
-ParetoSet ParetoSet_combine(ParetoSet* set1, ParetoSet* set2) {
+ParetoSet ParetoSet_combine(ParetoSet* set1, ParetoSet* set2, long capacity) {
     ParetoSet result;
     ParetoSet_init(&result);
 
     for (int i = 0;i < set1->amount;i++) {
         bool dominated = false;
+        if(set1->solutions[i].weight > capacity) continue;
 
         for (int j = 0;j < set2->amount;j++) {
             if (Pareto_solution_dominates(set2->solutions + j, set1->solutions + i)) {
@@ -102,6 +103,8 @@ ParetoSet ParetoSet_combine(ParetoSet* set1, ParetoSet* set2) {
 
     for (int i = 0;i < set2->amount;i++) {
         bool dominated = false;
+
+        if(set2->solutions[i].weight > capacity) continue;
 
         for (int j = 0;j < set1->amount;j++) {
             if (Pareto_solution_dominates(set1->solutions + j, set2->solutions + i)) {
@@ -156,7 +159,7 @@ Solution nemhauser_ullmann(KnapsackInput input) {
     for (int i = 1;i <= input.number_items;i++) {
         ParetoSet* prev_set = pareto_sets + (i - 1);
         ParetoSet p_plus_one = ParetoSet_calculate_plus_i(prev_set, input.weight[i-1], input.profit[i-1], i);
-        pareto_sets[i] = ParetoSet_combine(prev_set, &p_plus_one);
+        pareto_sets[i] = ParetoSet_combine(prev_set, &p_plus_one, input.capacity);
 
         ParetoSet_cleanup(&p_plus_one);
     }
