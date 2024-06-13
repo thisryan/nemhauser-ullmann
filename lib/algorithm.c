@@ -14,18 +14,16 @@ typedef struct ParetoSolution ParetoSolution;
 struct ParetoSolution {
     long weight;
     long profit;
-    size_t prev_item;
     size_t item_index;
-    size_t prev_set_index;
+    ParetoSolution *prev;
 };
 
 ParetoSolution empty_solution() {
     return (ParetoSolution) {
         .weight = 0,
             .profit = 0,
-            .prev_item = -1,
             .item_index = -1,
-            .prev_set_index = -1,
+            .prev = NULL,
     };
 }
 
@@ -75,8 +73,7 @@ ParetoSet ParetoSet_calculate_plus_i(ParetoSet* set, long weight, long profit, s
         result.solutions[i].weight = set->solutions[i].weight + weight;
         result.solutions[i].profit = set->solutions[i].profit + profit;
         result.solutions[i].item_index = item_index;
-        result.solutions[i].prev_set_index = i;
-        result.solutions[i].prev_item = set->solutions[i].item_index;
+        result.solutions[i].prev = set->solutions + i;
     }
 
     return result;
@@ -131,11 +128,11 @@ Solution Solution_reconstruct(ParetoSet *sets, ParetoSolution final_solution){
     while(cur.item_index != -1) {
         items[index++] = cur.item_index;
 
-        if(cur.prev_item == -1) {
+        if(cur.prev == NULL) {
             break;
         }
 
-        cur = sets[cur.prev_item].solutions[cur.prev_set_index];
+        cur = *cur.prev;
 
         if(index >= amount){
             amount *= 2;
