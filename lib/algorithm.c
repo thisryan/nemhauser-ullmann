@@ -3,6 +3,12 @@
 #include <stdbool.h>
 #include <stdio.h>
 
+/*
+* Currently im playing fast and loose with the definitions, since not every solution of type "ParetoSolutions"
+* is actually a ParetoSolution
+*/
+// TODO: Fix Naming
+
 typedef struct ParetoSolution ParetoSolution;
 
 struct ParetoSolution {
