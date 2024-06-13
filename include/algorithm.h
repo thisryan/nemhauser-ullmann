@@ -3,6 +3,7 @@
 #include <stdlib.h>
 
 typedef struct {
+    long capacity;
     long *weight;
     long *profit; 
     size_t number_items;
