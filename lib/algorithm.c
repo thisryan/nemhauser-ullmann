@@ -143,3 +143,34 @@ Solution Solution_reconstruct(ParetoSet *sets, ParetoSolution final_solution){
         .items = items
     };
 }
+
+Solution nemhauser_ullmann(KnapsackInput input) {
+    ParetoSet* pareto_sets = malloc((input.number_items + 1) * sizeof(ParetoSet));
+    ParetoSet_init(pareto_sets + 0);
+    ParetoSet_add(pareto_sets + 0, empty_solution());
+    ParetoSet_pack(pareto_sets + 0);
+
+    for (int i = 1;i <= input.number_items;i++) {
+        ParetoSet* prev_set = pareto_sets + (i - 1);
+        ParetoSet p_plus_one = ParetoSet_calculate_plus_i(prev_set, input.weight[i-1], input.profit[i-1], i);
+        pareto_sets[i] = ParetoSet_combine(prev_set, &p_plus_one);
+
+        ParetoSet_cleanup(&p_plus_one);
+    }
+
+    ParetoSolution best_solution;
+    size_t index = 0;
+    while(pareto_sets[input.number_items].solutions[index].weight <= input.capacity){
+        best_solution = pareto_sets[input.number_items].solutions[index];
+        index++;
+    }
+
+    Solution sol = Solution_reconstruct(pareto_sets, best_solution);
+
+    for(int i = 0;i <= input.number_items;i++){
+        ParetoSet_cleanup(pareto_sets + i);
+    }
+    free(pareto_sets);
+
+    return sol;
+}
