@@ -13,3 +13,8 @@ struct ParetoSolution {
     size_t prev_set_index;
 };
 
+typedef struct {
+    ParetoSolution* solutions;
+    size_t amount;
+    size_t index;
+} ParetoSet;
