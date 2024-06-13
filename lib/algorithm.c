@@ -56,6 +56,10 @@ void ParetoSet_pack(ParetoSet* set) {
     set->amount = set->index;
 }
 
+void ParetoSet_cleanup(ParetoSet *set){
+    free(set->solutions);
+}
+
 ParetoSet ParetoSet_calculate_plus_i(ParetoSet* set, long weight, long profit, size_t item_index) {
     ParetoSet result;
     result.amount = set->amount;
