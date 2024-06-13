@@ -161,11 +161,13 @@ Solution nemhauser_ullmann(KnapsackInput input) {
         ParetoSet_cleanup(&p_plus_one);
     }
 
-    ParetoSolution best_solution;
-    size_t index = 0;
-    while(pareto_sets[input.number_items].solutions[index].weight <= input.capacity){
-        best_solution = pareto_sets[input.number_items].solutions[index];
-        index++;
+    ParetoSolution best_solution = empty_solution();
+    ParetoSet *n_set = pareto_sets + input.number_items;
+    for(int i = 0;i < n_set->amount;i++){
+        if(n_set->solutions[i].profit > best_solution.profit && n_set->solutions[i].weight <= input.capacity) {
+            best_solution = n_set->solutions[i];
+        }
+        
     }
 
     Solution sol = Solution_reconstruct(pareto_sets, best_solution);
