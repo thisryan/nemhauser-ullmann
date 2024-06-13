@@ -34,3 +34,24 @@ typedef struct {
     size_t amount;
     size_t index;
 } ParetoSet;
+
+void ParetoSet_init(ParetoSet* set) {
+    set->amount = 100;
+    set->index = 0;
+    set->solutions = malloc(set->amount * sizeof(ParetoSolution));
+}
+
+void ParetoSet_add(ParetoSet* set, ParetoSolution solution) {
+    if (set->index >= set->amount) {
+        set->amount *= 2;
+        set->solutions = realloc(set->solutions, set->amount * sizeof(ParetoSolution));
+    }
+
+    set->solutions[set->index++] = solution;
+}
+
+// Packing means cutting the memory to exact size since i dont need to add elements anymore
+void ParetoSet_pack(ParetoSet* set) {
+    set->solutions = realloc(set->solutions, set->index * sizeof(ParetoSolution));
+    set->amount = set->index;
+}
