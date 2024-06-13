@@ -10,8 +10,8 @@ typedef struct {
 } KnapsackInput;
 
 typedef struct {
-    size_t *items;
-    size_t amount;
+    long weight;
+    long profit;
 } Solution;
 
 Solution nemhauser_ullmann(KnapsackInput input);

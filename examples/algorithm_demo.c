@@ -21,19 +21,7 @@ int main(int argc, char const* argv []) {
     printf("Number: %ld, Cap: %ld \n", input.number_items, input.capacity);
 
     Solution sol = nemhauser_ullmann(input);
-    for (int i = 0;i < sol.amount;i++) {
-        printf("%ld ", sol.items[i]);
-    }
-    printf("\n");
-
-    long sum = 0;
-    for (int i = 0;i < sol.amount;i++) {
-        sum += input.profit[sol.items[i] - 1];
-    }
-
-    printf("Result: %ld\n", sum);
-
-    free(sol.items);
+    printf("Result: %ld\n", sol.profit);
 
     return 0;
 }

@@ -56,7 +56,7 @@ void ParetoSet_pack(ParetoSet* set) {
     set->amount = set->index;
 }
 
-void ParetoSet_cleanup(ParetoSet *set){
+void ParetoSet_cleanup(ParetoSet* set) {
     free(set->solutions);
 }
 
@@ -73,106 +73,76 @@ ParetoSet ParetoSet_calculate_plus_i(ParetoSet* set, long weight, long profit, s
     return result;
 }
 
-// The approach implemented in this funcution is the naive approach in quadtraing time
-// TODO: Implement faster approach
-ParetoSet ParetoSet_combine(ParetoSet* set1, ParetoSet* set2, long capacity) {
+
+ParetoSet ParetoSet_combine(ParetoSet* set, long profit, long weight, long capacity) {
     ParetoSet result;
     ParetoSet_init(&result);
 
-    for (int i = 0;i < set1->amount;i++) {
-        bool dominated = false;
-        if (set1->solutions[i].weight > capacity) continue;
+    size_t set_pointer = 0;
+    size_t add_pointer = 0;
 
-        for (int j = 0;j < set2->amount;j++) {
-            if (Pareto_solution_dominates(set2->solutions + j, set1->solutions + i)) {
-                dominated = true;
-                break;
+
+    ParetoSet_add(&result, set->solutions[set_pointer]);
+    set_pointer++;
+
+    while (set_pointer < set->index && set->solutions[set_pointer].weight <= capacity) {
+        if (set->solutions[set_pointer].weight < set->solutions[add_pointer].weight + weight) {
+            if (!Pareto_solution_dominates(result.solutions + (result.index - 1), set->solutions + set_pointer)) {
+                ParetoSet_add(&result, set->solutions[set_pointer]);
             }
+            set_pointer++;
         }
-
-        if (!dominated) {
-            ParetoSet_add(&result, set1->solutions[i]);
+        else {
+            ParetoSolution sol = {
+                .profit = set->solutions[add_pointer].profit + profit,
+                .weight = set->solutions[add_pointer].weight + weight
+            };
+            add_pointer++;
+            if (sol.weight > capacity) continue;
+            if (!Pareto_solution_dominates(result.solutions + (result.index - 1), &sol)) {
+                ParetoSet_add(&result, sol);
+            }
         }
     }
 
-    for (int i = 0;i < set2->amount;i++) {
-        bool dominated = false;
-
-        if (set2->solutions[i].weight > capacity) continue;
-
-        for (int j = 0;j < set1->amount;j++) {
-            if (Pareto_solution_dominates(set1->solutions + j, set2->solutions + i)) {
-                dominated = true;
-                break;
-            }
+    while (add_pointer < set->index && set->solutions[add_pointer].weight + weight <= capacity) {
+        ParetoSolution sol = {
+            .profit = set->solutions[add_pointer].profit + profit,
+            .weight = set->solutions[add_pointer].weight + weight
+        };
+        if (!Pareto_solution_dominates(result.solutions + (result.index - 1), &sol)) {
+            ParetoSet_add(&result, sol);
         }
-
-        if (!dominated) {
-            ParetoSet_add(&result, set2->solutions[i]);
-        }
+        add_pointer++;
     }
 
     ParetoSet_pack(&result);
     return result;
 }
 
-Solution Solution_reconstruct(ParetoSet *sets, ParetoSolution final_solution){
-    size_t amount = 10;
-    size_t index = 0;
-    size_t *items = malloc(amount * sizeof(size_t));
-
-    ParetoSolution cur = final_solution;
-    while(cur.item_index != -1) {
-        items[index++] = cur.item_index;
-
-        if(cur.prev == NULL) {
-            break;
-        }
-
-        cur = *cur.prev;
-
-        if(index >= amount){
-            amount *= 2;
-            items = realloc(items, amount * sizeof(size_t));
-        }
-    }
-
-    items = realloc(items, index * sizeof(size_t));
-    return (Solution) {
-        .amount = index,
-        .items = items
-    };
-}
-
 Solution nemhauser_ullmann(KnapsackInput input) {
-    ParetoSet* pareto_sets = malloc((input.number_items + 1) * sizeof(ParetoSet));
-    ParetoSet_init(pareto_sets + 0);
-    ParetoSet_add(pareto_sets + 0, empty_solution());
-    ParetoSet_pack(pareto_sets + 0);
+    ParetoSet last;
+    ParetoSet_init(&last);
+    ParetoSet_add(&last, empty_solution());
+    ParetoSet_pack(&last);
 
     for (int i = 1;i <= input.number_items;i++) {
-        ParetoSet* prev_set = pareto_sets + (i - 1);
-        ParetoSet p_plus_one = ParetoSet_calculate_plus_i(prev_set, input.weight[i-1], input.profit[i-1], i);
-        pareto_sets[i] = ParetoSet_combine(prev_set, &p_plus_one, input.capacity);
+        ParetoSet new = ParetoSet_combine(&last, input.profit[i - 1], input.weight[i - 1], input.capacity);
 
-        ParetoSet_cleanup(&p_plus_one);
+        ParetoSet_cleanup(&last);
+        last = new;
     }
 
     ParetoSolution best_solution = empty_solution();
-    ParetoSet *n_set = pareto_sets + input.number_items;
-    for(int i = 0;i < n_set->amount;i++){
-        if(n_set->solutions[i].profit > best_solution.profit && n_set->solutions[i].weight <= input.capacity) {
+    //ParetoSet* n_set = pareto_sets + input.number_items;
+    ParetoSet* n_set = &last;
+    for (int i = 0;i < n_set->amount;i++) {
+        if (n_set->solutions[i].profit > best_solution.profit && n_set->solutions[i].weight <= input.capacity) {
             best_solution = n_set->solutions[i];
         }
-        
+
     }
 
-    Solution sol = Solution_reconstruct(pareto_sets, best_solution);
-
-    for(int i = 0;i <= input.number_items;i++){
-        ParetoSet_cleanup(pareto_sets + i);
-    }
-    free(pareto_sets);
-
-    return sol;
+    ParetoSet_cleanup(&last);
+    return (Solution) { .profit = best_solution.profit, .weight = best_solution.weight };
 }
