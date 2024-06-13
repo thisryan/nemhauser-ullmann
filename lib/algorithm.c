@@ -55,3 +55,19 @@ void ParetoSet_pack(ParetoSet* set) {
     set->solutions = realloc(set->solutions, set->index * sizeof(ParetoSolution));
     set->amount = set->index;
 }
+
+ParetoSet ParetoSet_calculate_plus_i(ParetoSet* set, long weight, long profit, size_t item_index) {
+    ParetoSet result;
+    result.amount = set->amount;
+    result.solutions = malloc(result.amount * sizeof(ParetoSolution));
+
+    for (size_t i = 0;i < set->amount;i++) {
+        result.solutions[i].weight = set->solutions[i].weight + weight;
+        result.solutions[i].profit = set->solutions[i].profit + profit;
+        result.solutions[i].item_index = item_index;
+        result.solutions[i].prev_set_index = i;
+        result.solutions[i].prev_item = set->solutions[i].item_index;
+    }
+
+    return result;
+}
