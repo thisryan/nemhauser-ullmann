@@ -115,3 +115,31 @@ ParetoSet ParetoSet_combine(ParetoSet* set1, ParetoSet* set2) {
     ParetoSet_pack(&result);
     return result;
 }
+
+Solution Solution_reconstruct(ParetoSet *sets, ParetoSolution final_solution){
+    size_t amount = 10;
+    size_t index = 0;
+    size_t *items = malloc(amount * sizeof(size_t));
+
+    ParetoSolution cur = final_solution;
+    while(cur.item_index != -1) {
+        items[index++] = cur.item_index;
+
+        if(cur.prev_item == -1) {
+            break;
+        }
+
+        cur = sets[cur.prev_item].solutions[cur.prev_set_index];
+
+        if(index >= amount){
+            amount *= 2;
+            items = realloc(items, amount * sizeof(size_t));
+        }
+    }
+
+    items = realloc(items, index * sizeof(size_t));
+    return (Solution) {
+        .amount = index,
+        .items = items
+    };
+}
