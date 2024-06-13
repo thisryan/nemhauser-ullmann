@@ -8,4 +8,4 @@ DEMO_NAME = algorithm_demo
 all: ${BUILD_DIR}/algorithm_demo
 
 ${BUILD_DIR}/%: ${EXAMPLE_DIR}/%.c ${LIB_DIR}/*.c
-	$(CC) $^ -o $@ -I ${INCLUDE_DIR} 
+	$(CC) $^ -o $@ -I ${INCLUDE_DIR} -O3 
