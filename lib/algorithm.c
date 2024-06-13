@@ -71,3 +71,43 @@ ParetoSet ParetoSet_calculate_plus_i(ParetoSet* set, long weight, long profit, s
 
     return result;
 }
+
+// The approach implemented in this funcution is the naive approach in quadtraing time
+// TODO: Implement faster approach
+ParetoSet ParetoSet_combine(ParetoSet* set1, ParetoSet* set2) {
+    ParetoSet result;
+    ParetoSet_init(&result);
+
+    for (int i = 0;i < set1->amount;i++) {
+        bool dominated = false;
+
+        for (int j = 0;j < set2->amount;j++) {
+            if (Pareto_solution_dominates(set2->solutions + j, set1->solutions + i)) {
+                dominated = true;
+                break;
+            }
+        }
+
+        if (!dominated) {
+            ParetoSet_add(&result, set1->solutions[i]);
+        }
+    }
+
+    for (int i = 0;i < set2->amount;i++) {
+        bool dominated = false;
+
+        for (int j = 0;j < set1->amount;j++) {
+            if (Pareto_solution_dominates(set1->solutions + j, set2->solutions + i)) {
+                dominated = true;
+                break;
+            }
+        }
+
+        if (!dominated) {
+            ParetoSet_add(&result, set2->solutions[i]);
+        }
+    }
+
+    ParetoSet_pack(&result);
+    return result;
+}
