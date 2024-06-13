@@ -81,7 +81,7 @@ ParetoSet ParetoSet_combine(ParetoSet* set1, ParetoSet* set2, long capacity) {
 
     for (int i = 0;i < set1->amount;i++) {
         bool dominated = false;
-        if(set1->solutions[i].weight > capacity) continue;
+        if (set1->solutions[i].weight > capacity) continue;
 
         for (int j = 0;j < set2->amount;j++) {
             if (Pareto_solution_dominates(set2->solutions + j, set1->solutions + i)) {
@@ -98,7 +98,7 @@ ParetoSet ParetoSet_combine(ParetoSet* set1, ParetoSet* set2, long capacity) {
     for (int i = 0;i < set2->amount;i++) {
         bool dominated = false;
 
-        if(set2->solutions[i].weight > capacity) continue;
+        if (set2->solutions[i].weight > capacity) continue;
 
         for (int j = 0;j < set1->amount;j++) {
             if (Pareto_solution_dominates(set1->solutions + j, set2->solutions + i)) {
