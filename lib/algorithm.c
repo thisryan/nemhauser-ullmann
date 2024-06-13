@@ -23,6 +23,12 @@ ParetoSolution empty_solution() {
     };
 }
 
+bool Pareto_solution_dominates(ParetoSolution* sol1, ParetoSolution* sol2) {
+    return sol1->profit >= sol2->profit
+        && sol1->weight <= sol2->weight
+        && (sol1->profit > sol2->profit || sol1->weight < sol2->weight);
+}
+
 typedef struct {
     ParetoSolution* solutions;
     size_t amount;
