@@ -23,5 +23,9 @@ int main(int argc, char const* argv []) {
     Solution sol = nemhauser_ullmann(input);
     printf("Result: %ld\n", sol.profit);
 
+    free(input.profit);
+    free(input.weight);
+
+
     return 0;
 }
