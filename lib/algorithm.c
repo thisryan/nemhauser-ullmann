@@ -60,20 +60,6 @@ void ParetoSet_cleanup(ParetoSet* set) {
     free(set->solutions);
 }
 
-ParetoSet ParetoSet_calculate_plus_i(ParetoSet* set, long weight, long profit, size_t item_index) {
-    ParetoSet result;
-    result.amount = set->amount;
-    result.solutions = malloc(result.amount * sizeof(ParetoSolution));
-
-    for (size_t i = 0;i < set->amount;i++) {
-        result.solutions[i].weight = set->solutions[i].weight + weight;
-        result.solutions[i].profit = set->solutions[i].profit + profit;
-    }
-
-    return result;
-}
-
-
 ParetoSet ParetoSet_combine(ParetoSet* set, long profit, long weight, long capacity) {
     ParetoSet result;
     ParetoSet_init(&result);
@@ -134,7 +120,6 @@ Solution nemhauser_ullmann(KnapsackInput input) {
     }
 
     ParetoSolution best_solution = empty_solution();
-    //ParetoSet* n_set = pareto_sets + input.number_items;
     ParetoSet* n_set = &last;
     for (int i = 0;i < n_set->amount;i++) {
         if (n_set->solutions[i].profit > best_solution.profit && n_set->solutions[i].weight <= input.capacity) {
